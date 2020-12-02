@@ -17,21 +17,22 @@
 export default {
   name: "App",
   data: () => ({
-    lights: [],
-    activeLight: 0,
-    timer: 0,
-    timeout: null,
-  }),
-  mounted() {
-    this.lights = [
+    lights: [
       { color: "red", url: "/red", duration: 10, active: false },
       { color: "yellow", url: "/yellow", duration: 3, active: false },
       { color: "green", url: "/green", duration: 15, active: false },
-    ];
+    ],
+    direction: null,
+    activeLight: 0,
+    timer: null,
+    timeout: null,
+  }),
+  mounted() {
     setTimeout(() => {
       if (!this.$route.params.color) {
         this.$router.push("/red");
         this.activeLight = 0;
+        this.direction = 'bottom'
         this.lights[this.activeLight].active = true
       }
 
@@ -39,6 +40,7 @@ export default {
         if (this.$route.path === item.url) {
           this.activeLight = index
           this.lights[this.activeLight].active = true
+          this.activeLight === 2 ? this.direction = 'top' : this.direction = 'bottom'   
         }
       });
 
@@ -47,14 +49,29 @@ export default {
       this.timeout = setInterval(() => {
         this.timer = this.lights[this.activeLight].duration - counter;
         counter += 1;
-
+        console.log(this.activeLight);
         if(this.timer <= 3) {
           if(this.timer % 2 === 0) this.lights[this.activeLight].active = false
           else this.lights[this.activeLight].active = true
         }
 
         if (this.lights[this.activeLight].duration < counter) {
-          this.activeLight >= 2 ? (this.activeLight = 0) : this.activeLight++;
+          if(this.direction === 'bottom'){
+            if(this.activeLight >= 2){
+              this.direction = 'top'
+              this.activeLight -= 1
+            }
+            else this.activeLight += 1;
+          }
+          else{
+            // console.log(1);
+            if(this.activeLight === 0){
+              this.direction = 'bottom'
+              this.activeLight += 1
+            }
+            else this.activeLight--;
+          }
+          
           this.lights.forEach( light => light.active = false )
           this.lights[this.activeLight].active = true
           this.$router.push(this.lights[this.activeLight].url);
@@ -83,7 +100,7 @@ body {
   text-align: center;
 }
 .timer {
-  font-size: 35px;
+  font-size: 55px;
   margin: 10px 0;
 }
 
