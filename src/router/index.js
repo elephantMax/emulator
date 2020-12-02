@@ -7,12 +7,7 @@ const routes = [
   {
     path: '/:color',
     name: 'Main',
-    component: () => import('@/views/Main')
-  },
-  {
-    path: '/',
-    name: 'Home',
-    component: () => import('@/views/Main')
+    component: () => import('@/App')
   },
 ]
 
