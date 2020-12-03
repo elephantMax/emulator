@@ -20,24 +20,26 @@ export default {
       { color: "yellow", url: "/yellow", duration: 3, active: false },
       { color: "green", url: "/green", duration: 15, active: false },
     ],
-    direction: JSON.parse(localStorage.getItem("status")).direction,
     activeLight: 0,
-    timer: JSON.parse(localStorage.getItem("status")).timer,
-    color: JSON.parse(localStorage.getItem("status")).color,
+    timer: null,
+    color: null,
+    direction: null,
   }),
   mounted() {
+    if(localStorage.getItem('status')){
+      this.timer = JSON.parse(localStorage.getItem("status")).timer 
+      this.color = JSON.parse(localStorage.getItem("status")).color 
+      this.direction = JSON.parse(localStorage.getItem("status")).direction 
+    }
     setTimeout(() => {
+      const availableColors =  ['red', 'yellow', 'green'];
       //no params case
-      if (!this.$route.params.color) {
+      if (!this.$route.params.color || !availableColors.includes(this.$route.params.color)) {
         this.$router.push("/red");
         this.activeLight = 0;
         this.lights[this.activeLight].active = true;
         this.timer = this.lights[this.activeLight].duration
         this.direction = "bottom";
-      }
-      else{
-        const availableColors =  ['red', 'yellow', 'green'];
-        if(!availableColors.includes(this.$route.params.color)) this.$router.push('/red')
       }
       //set data
       this.lights.forEach((item, index) => {
@@ -53,6 +55,7 @@ export default {
           }
         }
       });
+      
       this.timeout = setInterval(() => {
         this.timer--;
         if (this.timer <= 3) {
@@ -115,7 +118,6 @@ body {
   font-size: 55px;
   margin: 10px 0;
 }
-
 .lights {
   width: 130px;
   margin: auto;
