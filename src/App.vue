@@ -35,6 +35,10 @@ export default {
         this.timer = this.lights[this.activeLight].duration
         this.direction = "bottom";
       }
+      else{
+        const availableColors =  ['red', 'yellow', 'green'];
+        if(!availableColors.includes(this.$route.params.color)) this.$router.push('/red')
+      }
       //set data
       this.lights.forEach((item, index) => {
         if (this.$route.path === item.url) {
@@ -88,7 +92,7 @@ export default {
   },
   beforeDestroy() {
     this.timer = null;
-  },
+  }
 };
 </script>
 
