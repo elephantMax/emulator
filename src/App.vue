@@ -20,20 +20,14 @@ export default {
       { color: "yellow", url: "/yellow", duration: 3, active: false },
       { color: "green", url: "/green", duration: 15, active: false },
     ],
-    direction: null,
+    direction: JSON.parse(localStorage.getItem("status")).direction,
     activeLight: 0,
-    timer: null,
-    color: null,
+    timer: JSON.parse(localStorage.getItem("status")).timer,
+    color: JSON.parse(localStorage.getItem("status")).color,
   }),
   mounted() {
-    // localStorage.clear()
     setTimeout(() => {
-      if (localStorage.getItem("status")) {
-        this.color = JSON.parse(localStorage.getItem("status")).color;
-        this.timer = JSON.parse(localStorage.getItem("status")).timer;
-        this.direction = JSON.parse(localStorage.getItem("status")).direction;
-      }
-
+      //no params case
       if (!this.$route.params.color) {
         this.$router.push("/red");
         this.activeLight = 0;
@@ -41,10 +35,9 @@ export default {
         this.timer = this.lights[this.activeLight].duration
         this.direction = "bottom";
       }
-
+      //set data
       this.lights.forEach((item, index) => {
         if (this.$route.path === item.url) {
-          console.log(1);
           this.activeLight = index;
           this.lights[this.activeLight].active = true;
           !this.timer
