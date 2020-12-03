@@ -1,9 +1,9 @@
 <template>
   <div id="app">
     <h1>Traffic Light Emulator</h1>
-    <h3 class="timer">{{ timer || '...' }}</h3>
+    <h3 class="timer">{{ timer }}</h3>
     <div class="lights">
-      <Light v-for="light in lights" :key="light.url" :light="light"/>
+      <Light v-for="light in lights" :key="light.url" :light="light" />
     </div>
   </div>
 </template>
@@ -23,41 +23,48 @@ export default {
     direction: null,
     activeLight: 0,
     timer: null,
-    timeout: null,
+    color: null,
   }),
   mounted() {
+    // localStorage.clear()
     setTimeout(() => {
-      let counter = 0;
+      if (localStorage.getItem("status")) {
+        this.color = JSON.parse(localStorage.getItem("status")).color;
+        this.timer = JSON.parse(localStorage.getItem("status")).timer;
+        this.direction = JSON.parse(localStorage.getItem("status")).direction;
+      }
 
-      if(localStorage.getItem('status')){
-        counter = JSON.parse(localStorage.getItem('status')).counter
-        this.direction = JSON.parse(localStorage.getItem('status')).direction
-      } 
-        
       if (!this.$route.params.color) {
         this.$router.push("/red");
         this.activeLight = 0;
-        this.direction = "bottom";
         this.lights[this.activeLight].active = true;
+        this.timer = this.lights[this.activeLight].duration
+        this.direction = "bottom";
       }
 
       this.lights.forEach((item, index) => {
         if (this.$route.path === item.url) {
+          console.log(1);
           this.activeLight = index;
           this.lights[this.activeLight].active = true;
+          !this.timer
+            ? (this.timer = this.lights[this.activeLight].duration)
+            : (this.timer = this.timer);
+          if (this.color !== this.lights[this.activeLight].color) {
+            this.timer = this.lights[this.activeLight].duration;
+            this.color = this.lights[this.activeLight].color;
+          }
         }
       });
-
       this.timeout = setInterval(() => {
-        this.timer = this.lights[this.activeLight].duration - counter;
-        counter += 1;
+        this.timer--;
         if (this.timer <= 3) {
           if (this.timer % 2 === 0)
             this.lights[this.activeLight].active = false;
           else this.lights[this.activeLight].active = true;
         }
 
-        if (this.lights[this.activeLight].duration < counter) {
+        if (this.timer < 0) {
           if (this.direction === "bottom") {
             if (this.activeLight >= 2) {
               this.direction = "top";
@@ -69,20 +76,26 @@ export default {
               this.activeLight += 1;
             } else this.activeLight--;
           }
-
           this.lights.forEach((light) => (light.active = false));
           this.lights[this.activeLight].active = true;
           this.$router.push(this.lights[this.activeLight].url);
-          counter = 1;
           this.timer = this.lights[this.activeLight].duration;
+          this.color = this.lights[this.activeLight].color;
         }
-        localStorage.setItem('status', JSON.stringify({counter, direction: this.direction}))
+        localStorage.setItem(
+          "status",
+          JSON.stringify({
+            color: this.color,
+            timer: this.timer,
+            direction: this.direction,
+          })
+        )
       }, 1000);
     }, 50);
   },
-  beforeDestroy(){
-    this.timer = null
-  }
+  beforeDestroy() {
+    this.timer = null;
+  },
 };
 </script>
 
