@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <h1>Traffic Light Emulator</h1>
-    <h3 class="timer">{{ timer }}</h3>
+    <h3 class="timer">{{ timer || '...' }}</h3>
     <div class="lights">
       <Light v-for="light in lights" :key="light.url" :light="light"/>
     </div>
@@ -27,6 +27,13 @@ export default {
   }),
   mounted() {
     setTimeout(() => {
+      let counter = 0;
+
+      if(localStorage.getItem('status')){
+        counter = JSON.parse(localStorage.getItem('status')).counter
+        this.direction = JSON.parse(localStorage.getItem('status')).direction
+      } 
+        
       if (!this.$route.params.color) {
         this.$router.push("/red");
         this.activeLight = 0;
@@ -38,13 +45,8 @@ export default {
         if (this.$route.path === item.url) {
           this.activeLight = index;
           this.lights[this.activeLight].active = true;
-          this.activeLight === 2
-            ? (this.direction = "top")
-            : (this.direction = "bottom");
         }
       });
-
-      let counter = 0;
 
       this.timeout = setInterval(() => {
         this.timer = this.lights[this.activeLight].duration - counter;
@@ -74,9 +76,13 @@ export default {
           counter = 1;
           this.timer = this.lights[this.activeLight].duration;
         }
+        localStorage.setItem('status', JSON.stringify({counter, direction: this.direction}))
       }, 1000);
     }, 50);
   },
+  beforeDestroy(){
+    this.timer = null
+  }
 };
 </script>
 
